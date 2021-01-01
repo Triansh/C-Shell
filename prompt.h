@@ -1,0 +1,7 @@
+#ifndef C_SHELL_PROMPT_H
+#define C_SHELL_PROMPT_H
+
+
+char **prompt(char *shell_root, int *errorCode);
+
+#endif //C_SHELL_PROMPT_H
