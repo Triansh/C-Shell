@@ -29,6 +29,7 @@ void SIGCHLD_handler(int signum) {
     int status;
     pid_t pid;
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+        printf("%d", pid);
         for (int i = 0; i < TOTAL_JOBS; ++i) {
             if (jobList[i] != NULL && jobList[i]->pid == pid) {
 

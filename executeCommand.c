@@ -128,28 +128,41 @@ int go_through_piping(char *inputbuffer, struct job **jobList, char *last_cd, ch
 
     int ret_val = 0;
 
-    for (int i = 0; i < argc - 1; i++) {
+    if(argc > 1){
+
         int pipe_fd[2];
-        if (pipe(pipe_fd) < 0) {
-            perror("Error in constructing pipe");
-            break;
+        int in_fd = STDIN_COPY;
+
+        for (int i = 0; i < argc ; i++) {
+            if (pipe(pipe_fd) < 0) {
+                perror("Error in constructing pipe");
+                break;
+            }
+
+            pid_t childpid = fork();
+
+            if(childpid == -1){
+                perror("Error in creating child");
+                break;
+            } else if (childpid == 0){
+                dup2(in_fd, 0);
+
+                i != argc - 1 ? dup2(pipe_fd[1], 1) : dup2(STDOUT_COPY, 1);
+                close(pipe_fd[0]);
+                execute(pipe_div[i], jobList, last_cd, shell_root, fgProcess, errorCode);
+                exit(0);
+
+            } else{
+                wait(NULL);
+                in_fd = pipe_fd[0];
+                close(pipe_fd[1]);
+            }
+
         }
-
-        dup2(pipe_fd[1], 1);
-        if (execute(pipe_div[i], jobList, last_cd, shell_root, fgProcess, errorCode)) {
-            ret_val = 1;
-            break;
-        }
-
-        dup2(pipe_fd[0], 0);
-        close(pipe_fd[1]);
-    }
-
-    dup2(STDOUT_COPY, 1);
-
-    if (execute(pipe_div[argc - 1], jobList, last_cd, shell_root, fgProcess, errorCode)) {
+    } else if (execute(pipe_div[0], jobList, last_cd, shell_root, fgProcess, errorCode)) {
         ret_val = 1;
     }
+
 
     for (int i = 0; i < CF_count; ++i) {
         free(pipe_div[i]);

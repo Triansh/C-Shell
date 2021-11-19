@@ -12,7 +12,7 @@ char **prompt(char *shell_root, int *errorCode) {
     memset(hostname, 0, sizeof(hostname));
     memset(username, 0, sizeof(username));
 
-    strcpy(username, getenv("USERNAME"));
+    strcpy(username, getenv("USER"));
     gethostname(hostname, path_len);
 
     char *inputBuffer = (char *) malloc(path_len);

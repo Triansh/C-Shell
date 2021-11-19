@@ -54,3 +54,4 @@ dkms.conf
 # Executable and history file
 shell
 history.txt
+.idea/

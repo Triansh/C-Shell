@@ -29,7 +29,7 @@ void perform_fg(char **params, struct job **jobList, struct job *fgProcess, int 
         return;
     }
 
-    if (kill(jobList[index]->pid, SIGCONT) < 0) {
+    if (kill(-jobList[index]->pid, SIGCONT) < 0) {
         perror("fg: job not found\n");
         *errorCode = 1;
         return;
@@ -49,8 +49,13 @@ void perform_fg(char **params, struct job **jobList, struct job *fgProcess, int 
         return;
     }
 
+    printf("jkbdkbbw\n");
+
     int status;
-    waitpid(job_pid, &status, WUNTRACED);
+    waitpid(-(job_pid), &status, WUNTRACED);
+
+    printf("jkbdkbbw\n");
+
 
     *errorCode = 0;
 
@@ -60,17 +65,30 @@ void perform_fg(char **params, struct job **jobList, struct job *fgProcess, int 
         return;
     }
 
+    printf("jkbdkbbw\n");
     signal(SIGTTOU, SIG_DFL);
     signal(SIGTTIN, SIG_DFL);
 
+    printf("status: %d\n", status);
 
     if (WIFSTOPPED(status)) {
         printf("\nStopped ");
         addJob(fgProcess->pid, fgProcess->command, jobList);
         *errorCode = 1;
-    }
+    } else if (WIFEXITED(status)) {
+		printf("[%d] ", fgProcess->pid);
+		printf("done");
+		printf("\t %s\n", fgProcess->command);
+		// delete(j->_pgid, jobList);
+		// fflush(stdout);
+	} else if (WIFSIGNALED(status)) {
+		printf("[%d] ", fgProcess->pid);
+		printf(" with signal %d", WTERMSIG(status));
+		printf("\t %s\n", fgProcess->command);
+		// fflush(stdout);			
+	}
     fgProcess->id = -1;
-
+    printf("jkbdkbbw\n");
 
 }
 
